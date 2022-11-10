@@ -63,14 +63,17 @@ class StopSurveyEval extends AbstractExternalModule
         // Loop over every pid using this EM
         foreach ($this->getProjectsWithModuleEnabled() as $pid) {
 
-            if (!$this->getProjectSetting('cron')) continue;
+            // Skip is cron feature not enabled
+            if ($this->getProjectSetting('cron')) continue;
 
             // Act like we are in that project
             $_GET['pid'] = $pid;
             $Proj = new Project($pid);
             define('PROJECT_ID', $pid);
 
+            // Pull records that need eval and go
             $records = explode(',', $this->getProjectSetting('records'));
+            if (empty($records)) continue;
             $this->setProjectSetting('records', '');
             $surveyScheduler = new SurveyScheduler($pid);
             foreach ($records as $id) {

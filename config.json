@@ -20,7 +20,7 @@
         },
         {
             "key": "cron",
-            "name": "<b>Run a cron to evaluate ASI on records saved daily</b>",
+            "name": "<b>Run a cron to evaluate ASI on records recently saved</b>",
             "type": "checkbox"
         },
         {
@@ -44,9 +44,9 @@
     "crons": [
         {
             "cron_name": "eval_survey_asi",
-            "cron_description": "Evaluate all survey asi logic",
+            "cron_description": "Evaluate all missed asi logic",
             "method": "run_cron",
-            "cron_frequency": 86400,
+            "cron_frequency": 3600,
             "cron_max_run_time": 86400
         }
     ],
