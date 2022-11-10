@@ -1,0 +1,57 @@
+{
+    "name": "Stop Survey Eval",
+    "description": "Stop ASI logic from evaluating on form or survey save. Useful for projects with many events and surveys.",
+    "namespace": "UWMadison\\StopSurveyEval",
+    "authors": [
+        {
+            "name": "Adam Nunez",
+            "email": "Adam.Nunez@ctri.wisc.edu",
+            "institution": "UW Madison - Center for Tobacco Research and Intervention "
+        }
+    ],
+    "permissions": [
+        "redcap_save_record"
+    ],
+    "project-settings": [
+        {
+            "key": "info",
+            "name": "By having this EM enabled on this project you are preventing almost all ASI logic from evaluating on a form/survey save. Surveys marked as \"Send immediately\" always have their logic evaluated. Additional options below can be used to selectively evaluate ASI in some cases. Survey ASI logic is still evaluated on data load, in other crons etc, this module only impacts form/survey save.",
+            "type": "descriptive"
+        },
+        {
+            "key": "cron",
+            "name": "<b>Run a cron to evaluate ASI on records saved daily</b>",
+            "type": "checkbox"
+        },
+        {
+            "key": "current",
+            "name": "<b>Evaluate ASI for event of saved survey</b>",
+            "type": "checkbox"
+        },
+        {
+            "key": "events",
+            "name": "<b>Always evaluate ASI for</b>",
+            "type": "event-list",
+            "repeatable": true
+        },
+        {
+            "key": "records",
+            "name": "<b>Recently Saved Records</b>",
+            "type": "textarea",
+            "hidden": true
+        }
+    ],
+    "crons": [
+        {
+            "cron_name": "eval_survey_asi",
+            "cron_description": "Evaluate all survey asi logic",
+            "method": "run_cron",
+            "cron_frequency": 86400,
+            "cron_max_run_time": 86400
+        }
+    ],
+    "framework-version": 9,
+    "compatibility": {
+        "redcap-version-min": "12.0.4"
+    }
+}
