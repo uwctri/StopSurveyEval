@@ -44,10 +44,10 @@
     "crons": [
         {
             "cron_name": "eval_survey_asi",
-            "cron_description": "Evaluate all missed asi logic",
+            "cron_description": "Evaluate all ASI logic recently skipped due to the EM",
             "method": "run_cron",
-            "cron_frequency": 3600,
-            "cron_max_run_time": 86400
+            "cron_frequency": 300,
+            "cron_max_run_time": 10800
         }
     ],
     "framework-version": 9,
