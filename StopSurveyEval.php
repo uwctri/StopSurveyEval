@@ -20,9 +20,9 @@ class StopSurveyEval extends AbstractExternalModule
         $includeEvents = $this->getProjectSetting("current") ? [$event_id] : [];
         $includeEvents = array_merge($includeEvents, $this->getProjectSetting("events") ?? []);
         if ($this->getProjectSetting('cron')) {
-            $list = $this->getProjectSetting('records');
-            $list = empty($list) ? $record : $list . ',' . $record;
-            $this->setProjectSetting('records', $list);
+            $list = json_decode($this->getProjectSetting('records'), true);
+            $list[] = $record;
+            $this->setProjectSetting('records', json_encode($list));
         }
 
         // Update and insert new code
@@ -71,7 +71,7 @@ class StopSurveyEval extends AbstractExternalModule
             define('PROJECT_ID', $pid);
 
             // Pull records that need eval and go
-            $records = explode(',', $this->getProjectSetting('records'));
+            $records = array_unique(json_decode($this->getProjectSetting('records'), true));
             if (empty($records)) continue;
             $this->setProjectSetting('records', '');
             $surveyScheduler = new SurveyScheduler($pid);
