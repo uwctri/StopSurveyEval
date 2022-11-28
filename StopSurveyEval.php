@@ -68,15 +68,14 @@ class StopSurveyEval extends AbstractExternalModule
             // Act like we are in that project
             $_GET['pid'] = $pid;
             $Proj = new Project($pid);
-            define('PROJECT_ID', $pid);
 
             // Pull records that need eval and go
             $records = array_unique(json_decode($this->getProjectSetting('records'), true));
             if (empty($records)) continue;
-            $this->setProjectSetting('records', '');
             $surveyScheduler = new SurveyScheduler($pid);
-            foreach ($records as $id) {
+            foreach ($records as $index => $id) {
                 $surveyScheduler->checkToScheduleParticipantInvitation($id);
+                $this->setProjectSetting('records', json_encode(array_slice($records, $index + 1)));
             }
         }
 
