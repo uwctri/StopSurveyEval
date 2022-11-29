@@ -67,15 +67,15 @@ class StopSurveyEval extends AbstractExternalModule
             $Proj = new Project($pid);
 
             // Skip if cron feature not enabled
-            if (!$this->getProjectSetting('cron')) continue;
+            if (!$this->getProjectSetting('cron', $pid)) continue;
 
             // Pull records that need eval and go
-            $records = array_unique(json_decode($this->getProjectSetting('records'), true));
+            $records = array_unique(json_decode($this->getProjectSetting('records', $pid), true));
             if (empty($records)) continue;
             $surveyScheduler = new SurveyScheduler($pid);
             foreach ($records as $index => $id) {
                 $surveyScheduler->checkToScheduleParticipantInvitation($id);
-                $this->setProjectSetting('records', json_encode(array_slice($records, $index + 1)));
+                $this->setProjectSetting('records', json_encode(array_slice($records, $index + 1)), $pid);
             }
         }
 
