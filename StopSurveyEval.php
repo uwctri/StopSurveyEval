@@ -55,16 +55,8 @@ class StopSurveyEval extends AbstractExternalModule
 
     public function run_cron($cronInfo)
     {
-        // Stash original PID, probably not needed, but docs recommend
-        $originalPid = $_GET['pid'];
-        global $Proj;
-
         // Loop over every pid using this EM
         foreach ($this->getProjectsWithModuleEnabled() as $pid) {
-
-            // Act like we are in that project
-            $_GET['pid'] = $pid;
-            $Proj = new Project($pid);
 
             // Skip if cron feature not enabled
             if (!$this->getProjectSetting('cron', $pid)) continue;
@@ -79,7 +71,6 @@ class StopSurveyEval extends AbstractExternalModule
             }
         }
 
-        $_GET['pid'] = $originalPid;
         return "The \"{$cronInfo['cron_name']}\" cron job completed successfully.";
     }
 }
