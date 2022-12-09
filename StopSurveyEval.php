@@ -3,7 +3,6 @@
 namespace UWMadison\StopSurveyEval;
 
 use ExternalModules\AbstractExternalModule;
-use Project;
 use SurveyScheduler;
 
 class StopSurveyEval extends AbstractExternalModule

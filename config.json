@@ -1,12 +1,12 @@
 {
     "name": "Stop Survey Eval",
-    "description": "Stop ASI logic from evaluating on form or survey save. Useful for projects with many events and surveys.",
+    "description": "Stop ASI logic from evaluating on form or survey save. Useful for improving performance and reducing save time in projects with many events and surveys.",
     "namespace": "UWMadison\\StopSurveyEval",
     "authors": [
         {
             "name": "Adam Nunez",
             "email": "Adam.Nunez@ctri.wisc.edu",
-            "institution": "UW Madison - Center for Tobacco Research and Intervention "
+            "institution": "UW Madison - Center for Tobacco Research and Intervention"
         }
     ],
     "permissions": [
