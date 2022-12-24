@@ -21,7 +21,7 @@ class StopSurveyEval extends AbstractExternalModule
         if ($this->getProjectSetting('cron')) {
             $list = json_decode($this->getProjectSetting('records'), true);
             $list[] = $record;
-            $this->setProjectSetting('records', json_encode($list));
+            $this->setProjectSetting('records', json_encode(array_unique($list)));
         }
 
         // Update and insert new code
@@ -52,24 +52,47 @@ class StopSurveyEval extends AbstractExternalModule
         return str_replace($search, $newFn . "\n\n" . $oldFn, $code);
     }
 
+    private function getRecords($pid)
+    {
+        return json_decode($this->getProjectSetting('records', $pid), true);
+    }
+
     public function run_cron($cronInfo)
     {
+        $exitMsg = "The \"{$cronInfo['cron_name']}\" cron job completed successfully.";
+        $projects = [];
+
         // Loop over every pid using this EM
         foreach ($this->getProjectsWithModuleEnabled() as $pid) {
 
             // Skip if cron feature not enabled
             if (!$this->getProjectSetting('cron', $pid)) continue;
 
-            // Pull records that need eval and go
-            $records = array_unique(json_decode($this->getProjectSetting('records', $pid), true));
+            // Pull records that need eval and save the info
+            $records = $this->getRecords($pid);
             if (empty($records)) continue;
-            $surveyScheduler = new SurveyScheduler($pid);
-            foreach ($records as $index => $id) {
-                $surveyScheduler->checkToScheduleParticipantInvitation($id);
-                $this->setProjectSetting('records', json_encode(array_slice($records, $index + 1)), $pid);
-            }
+            $projects[$pid] = $this->getProjectSetting('time', $pid);
         }
 
-        return "The \"{$cronInfo['cron_name']}\" cron job completed successfully.";
+        // Find what pid we should work on, update it's time
+        if (empty($projects)) return $exitMsg;
+        asort($projects);
+        $pid = array_keys($projects)[0];
+        $this->setProjectSetting('time', time(), $pid);
+
+        // Crunch ASI
+        $records = $this->getRecords($pid);
+        $surveyScheduler = new SurveyScheduler($pid);
+        $start = time();
+        foreach ($records as $id) {
+            $surveyScheduler->checkToScheduleParticipantInvitation($id);
+            $tmp = $this->getRecords($pid);
+            $this->setProjectSetting('records', json_encode(array_diff($tmp, $id)), $pid);
+
+            // If we have run for over a minute, exit so we visit other projects
+            if ((time() - $start) > 60) break;
+        }
+
+        return $exitMsg;
     }
 }

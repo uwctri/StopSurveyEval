@@ -39,6 +39,12 @@
             "name": "<b>Recently Saved Records</b>",
             "type": "textarea",
             "hidden": true
+        },
+        {
+            "key": "time",
+            "name": "<b>Time of last ASI cron run</b>",
+            "type": "text",
+            "hidden": true
         }
     ],
     "crons": [
@@ -47,7 +53,7 @@
             "cron_description": "Evaluate all ASI logic recently skipped due to the EM",
             "method": "run_cron",
             "cron_frequency": 60,
-            "cron_max_run_time": 120
+            "cron_max_run_time": 600
         }
     ],
     "framework-version": 9,
