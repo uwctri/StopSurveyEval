@@ -87,7 +87,7 @@ class StopSurveyEval extends AbstractExternalModule
         foreach ($records as $id) {
             $surveyScheduler->checkToScheduleParticipantInvitation($id);
             $tmp = $this->getRecords($pid);
-            $this->setProjectSetting('records', json_encode(array_diff($tmp, $id)), $pid);
+            $this->setProjectSetting('records', json_encode(array_diff($tmp, [$id])), $pid);
 
             // If we have run for over a minute, exit so we visit other projects
             if ((time() - $start) > 60) break;
