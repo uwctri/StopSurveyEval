@@ -21,7 +21,7 @@ class StopSurveyEval extends AbstractExternalModule
         if ($this->getProjectSetting('cron')) {
             $list = json_decode($this->getProjectSetting('records'), true);
             $list[] = $record;
-            $this->setProjectSetting('records', json_encode(array_unique($list)));
+            $this->setProjectSetting('records', json_encode($list));
         }
 
         // Update and insert new code
@@ -85,9 +85,17 @@ class StopSurveyEval extends AbstractExternalModule
         $surveyScheduler = new SurveyScheduler($pid);
         $start = time();
         foreach ($records as $id) {
+            // Normal function, not our custom one
             $surveyScheduler->checkToScheduleParticipantInvitation($id);
+
+            // Re-pull the records, they could have been updated
             $tmp = $this->getRecords($pid);
-            $this->setProjectSetting('records', json_encode(array_diff($tmp, [$id])), $pid);
+            $count = array_count_values($tmp)[$id];
+            $write = array_diff($tmp, [$id]);
+            if ($count > 1) {
+                $write[] = $id;
+            }
+            $this->setProjectSetting('records', json_encode($write), $pid);
 
             // If we have run for over a minute, exit so we visit other projects
             if ((time() - $start) > 60) break;
