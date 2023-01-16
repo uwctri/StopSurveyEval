@@ -8,16 +8,29 @@ use SurveyScheduler;
 class StopSurveyEval extends AbstractExternalModule
 {
     private $classFile = "../../redcap_v" . REDCAP_VERSION . "/Classes/SurveyScheduler.php";
+    private $patch = '
+        public function checkToScheduleParticipantInvitation($record, $isNewRecord = false, $surveysEvents = [])
+        {
+            $this->setSchedules();
+            foreach ($this->schedules as $survey_id => $events) {
+                foreach ($events as $event_id => $attr) {
+                    $surveysEvents[$survey_id][$event_id] = null;
+                    if ($attr["condition_send_time_option"] == "IMMEDIATELY" || in_array($event_id, [{{ event_list }}])) {
+                        $surveysEvents[$survey_id][$event_id] = true;
+                    }
+                }
+            }
+            return $this->_checkToScheduleParticipantInvitation($record, $isNewRecord, $surveysEvents);
+        }
+    ';
 
     public function redcap_save_record($project_id, $record, $instrument, $event_id)
     {
-        // Fetch code as strings
-        $code = $this->fetchCode($this->classFile);
-        $newMethod = $this->fetchCode($this->getModulePath() . "patch.php");
-
         // Check user config
         $includeEvents = $this->getProjectSetting("current") ? [$event_id] : [];
         $includeEvents = array_merge($includeEvents, $this->getProjectSetting("events") ?? []);
+
+        // Update Cron if enabled
         if ($this->getProjectSetting('cron')) {
             $list = json_decode($this->getProjectSetting('records'), true);
             $list[] = $record;
@@ -25,8 +38,8 @@ class StopSurveyEval extends AbstractExternalModule
         }
 
         // Update and insert new code
-        $newMethod = str_replace("{{ event_list }}", implode(", ", $includeEvents), $newMethod);
-        $newCode = $this->redefineFunction($code, $newMethod);
+        $newMethod = str_replace("{{ event_list }}", implode(", ", $includeEvents), $this->patch);
+        $newCode = $this->redefineFunction($this->fetchCode($this->classFile), $newMethod);
         eval($newCode);
     }
 
