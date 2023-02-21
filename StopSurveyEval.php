@@ -3,6 +3,7 @@
 namespace UWMadison\StopSurveyEval;
 
 use ExternalModules\AbstractExternalModule;
+use ExternalModules\ExternalModules;
 use SurveyScheduler;
 
 class StopSurveyEval extends AbstractExternalModule
@@ -37,10 +38,16 @@ class StopSurveyEval extends AbstractExternalModule
             $this->setProjectSetting('records', json_encode($list));
         }
 
-        // Update and insert new code
+        // Update the code before insert
         $newMethod = str_replace("{{ event_list }}", implode(", ", $includeEvents), $this->patch);
         $newCode = $this->redefineFunction($this->fetchCode($this->classFile), $newMethod);
-        eval($newCode);
+
+        // Wrap the eval if we run into any issue
+        try {
+            eval($newCode);
+        } catch (\Exception $e) {
+            ExternalModules::errorLog("Stop Survey Eval EM hit exception: " . $e->getMessage());
+        }
     }
 
     private function fetchCode($path)
